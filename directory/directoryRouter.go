@@ -7,7 +7,10 @@ import (
 )
 
 func returnDirs(c *fiber.Ctx) error {
-
+	// gets the path from request : done
+	// walks the dir if found : done
+	// we save the path into the database
+	//
 	c.Accepts("application/json")
 
 	dataStruct := struct {
@@ -21,7 +24,9 @@ func returnDirs(c *fiber.Ctx) error {
 	}
 
 	parsedDirs := ParseDirs(dataStruct.DirectoryToTarget, dataStruct.ContentType)
+
 	fmt.Print(parsedDirs)
+
 	return c.JSON(parsedDirs)
 
 }

@@ -126,24 +126,29 @@ func ExtractFolderPath(pathString string) string {
 }
 
 type DirectoryInstance struct {
-	Uuid       string
-	Path       string
-	FolderType string
-	FileCount  int
+	Uuid         string
+	Path         string
+	FolderType   string
+	FileCount    int
+	contentNames []string
 }
 
 type Directories struct {
 	Directories []DirectoryInstance
 }
 
-func videoFileCollective(path string) []string {
+func videoFileCollective(path []string) []string {
 	var returningSlice []string
+
+	for _, i := range path {
+		returningSlice = append(returningSlice, ExtractVideoName(i))
+	}
 
 	return returningSlice
 
 }
 
-func generateRecord(videoDirString string, givenFolder string, contentType string, fileCount int) DirectoryInstance {
+func generateRecord(videoDirString []string, givenFolder string, contentType string, fileCount int) DirectoryInstance {
 	retStruct := &DirectoryInstance{}
 	_id := uuid.New()
 	id := _id.String()
@@ -151,6 +156,7 @@ func generateRecord(videoDirString string, givenFolder string, contentType strin
 	retStruct.Path = givenFolder
 	retStruct.FolderType = contentType
 	retStruct.FileCount = fileCount
+	retStruct.contentNames = videoFileCollective(videoDirString)
 	return *retStruct
 
 }
@@ -158,13 +164,13 @@ func generateRecord(videoDirString string, givenFolder string, contentType strin
 func ParseDirs(pathToDigest string, contentType string) *Directories {
 	returningDataStructure := &Directories{}
 	pathBeingTargeted := path.Base(pathToDigest)
+
 	// formatted := FormatPath(pathBeingTargeted)
+
 	_, files := ScanRecursive(pathBeingTargeted, []string{".txt"})
 
-	for _, file := range files {
-		structInst := generateRecord(file, pathToDigest, contentType, len(files))
-		returningDataStructure.Directories = append(returningDataStructure.Directories, structInst)
-	}
+	structInst := generateRecord(files, pathToDigest, contentType, len(files))
+	returningDataStructure.Directories = append(returningDataStructure.Directories, structInst)
 
 	return returningDataStructure
 
