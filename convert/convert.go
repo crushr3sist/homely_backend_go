@@ -9,23 +9,27 @@ import (
 )
 
 func ConvertAll(paths []string) {
+	fmt.Println(paths)
+
 	for _, file := range paths {
-		fileDir := filepath.Join("videos", filepath.Base(file[:len(file)-4]))
+
+		fileDir := filepath.Join("videos", ExtractShowName(DeFormatter(ExtractFolderPath(FormatPath(file)))), filepath.Base(file[:len(file)-4]))
 		err := os.MkdirAll(fileDir, os.ModePerm)
 		if err != nil {
 			fmt.Println(err)
-			return
+			continue
 		}
+
 		in := ffmpeg.Input(file)
 		out := in.Output(filepath.Join(fileDir, "output.m3u8"), ffmpeg.KwArgs{
-			"c:v":           "h264_nvenc", // NVIDIA NVENC hardware acceleration
-			"b:v":           "5M",         // Video bitrate
-			"c:a":           "aac",        // AAC audio codec
+			"c:v":           "h264_nvenc",
+			"b:v":           "5M",
+			"c:a":           "aac",
 			"strict":        "-2",
 			"start_number":  "0",
 			"hls_time":      "10",
 			"hls_list_size": "0",
-			"f":             "hls", // Output format
+			"f":             "hls",
 		})
 		err = out.OverWriteOutput().WithOutput(os.Stdout).Run()
 		if err != nil {

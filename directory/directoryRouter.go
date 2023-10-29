@@ -11,10 +11,7 @@ import (
 )
 
 func parseDir(c *fiber.Ctx) error {
-	// gets the path from request : done
-	// walks the dir if found : done
-	// we save the path into the database
-	//
+
 	c.Accepts("application/json")
 
 	dataStruct := struct {
@@ -28,11 +25,8 @@ func parseDir(c *fiber.Ctx) error {
 	}
 
 	parsedDirs := ParseDirs(dataStruct.DirectoryToTarget, dataStruct.ContentType)
-
 	convert.ConvertAll(parsedDirs.RawPaths)
-
 	fmt.Print(parsedDirs)
-
 	return c.JSON(parsedDirs)
 
 }
@@ -47,7 +41,7 @@ type ShowResponse struct {
 }
 
 func ReturnShowsList() ShowResponse {
-	showsDir := "./videos" // Adjust the path to your videos directory
+	showsDir := "./videos"
 
 	showsList, err := ioutil.ReadDir(showsDir)
 	if err != nil {
@@ -79,7 +73,7 @@ func ReturnShowsList() ShowResponse {
 }
 
 func returnDirs(c *fiber.Ctx) error {
-	data := ReturnShowsList() // Assuming ReturnShowsList is defined in the same package
+	data := ReturnShowsList()
 	return c.Status(fiber.StatusOK).JSON(data)
 }
 

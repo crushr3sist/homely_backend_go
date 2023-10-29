@@ -22,6 +22,7 @@ func appInstance() *fiber.App {
 }
 
 func main() {
+
 	app := appInstance()
 	db.InitialMigration()
 	// Add middleware
