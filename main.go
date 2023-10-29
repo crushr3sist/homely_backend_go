@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/crushr3sist/homely_backend/db"
 	"github.com/crushr3sist/homely_backend/directory"
@@ -27,17 +28,22 @@ func main() {
 	db.InitialMigration()
 	// Add middleware
 	app.Use(helmet.New())
+	app.Use(cors.New())
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173", // Replace with your frontend URL
-		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
-		AllowHeaders: "Content-Type, Authorization",
-	}))
 
+		AllowMethods: "GET, POST, PUT, DELETE, OPTIONS",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+	app.Use(cors.New(cors.Config{
+		AllowOriginsFunc: func(origin string) bool {
+			return os.Getenv("ENVIRONMENT") == "development"
+		},
+	}))
 	// Define the folder path for your video files
 	videoFolderPath := "./videos" // Adjust the path as needed
 	directory.DirRouter(app)
 	// Serve static content (video files) using the fiber.Static middleware
 	app.Static("/streams", videoFolderPath)
 
-	log.Fatal(app.Listen(":8000"))
+	log.Fatal(app.Listen("10.1.1.140:8000"))
 }
