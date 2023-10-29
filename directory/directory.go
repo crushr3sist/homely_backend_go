@@ -84,45 +84,13 @@ func FormatPath(pathString string) string {
 }
 
 func ExtractVideoName(pathString string) string {
-	// takes a path string and extracts the video name
-	// algorithm works by splitting the string by the last \\
-	// right side is the file
-	backSlashCount := strings.Count(pathString, "\\")
-	counter := 0
-	retIndex := 0
-
-	for i := 0; i < len(pathString); i++ {
-		if string(pathString[i]) == "\\" {
-			counter += 1
-			if counter == backSlashCount {
-				retIndex = i
-			}
-		}
-	}
-	retIndex += 1
-	return pathString[retIndex:]
+	_, filename := filepath.Split(pathString)
+	return filename
 }
 
 func ExtractFolderPath(pathString string) string {
-	// takes a path string and extracts the video name
-	// algorithm works by splitting the string by the last \\
-	// left side is the path
-
-	backSlashCount := strings.Count(pathString, "\\")
-	counter := 0
-	retIndex := 0
-
-	for i := 0; i < len(pathString); i++ {
-		if string(pathString[i]) == "\\" {
-			counter += 1
-			if counter == backSlashCount {
-				retIndex = i
-			}
-		}
-	}
-
-	retIndex += 1
-	return pathString[:retIndex]
+	dir, _ := filepath.Split(pathString)
+	return dir
 }
 
 type DirectoryInstance struct {
@@ -135,6 +103,7 @@ type DirectoryInstance struct {
 
 type Directories struct {
 	Directories []DirectoryInstance
+	RawPaths    []string
 }
 
 func videoFileCollective(path []string) []string {
@@ -145,7 +114,6 @@ func videoFileCollective(path []string) []string {
 	}
 
 	return returningSlice
-
 }
 
 func generateRecord(videoDirString []string, givenFolder string, contentType string, fileCount int) DirectoryInstance {
@@ -158,20 +126,20 @@ func generateRecord(videoDirString []string, givenFolder string, contentType str
 	retStruct.FileCount = fileCount
 	retStruct.contentNames = videoFileCollective(videoDirString)
 	return *retStruct
-
 }
 
 func ParseDirs(pathToDigest string, contentType string) *Directories {
 	returningDataStructure := &Directories{}
-	pathBeingTargeted := path.Base(pathToDigest)
 
-	// formatted := FormatPath(pathBeingTargeted)
+	pathBeingTargeted := path.Base(pathToDigest)
 
 	_, files := ScanRecursive(pathBeingTargeted, []string{".txt"})
 
 	structInst := generateRecord(files, pathToDigest, contentType, len(files))
+
 	returningDataStructure.Directories = append(returningDataStructure.Directories, structInst)
 
-	return returningDataStructure
+	returningDataStructure.RawPaths = files
 
+	return returningDataStructure
 }
